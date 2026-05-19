@@ -1,127 +1,159 @@
 #include <iostream>
-#include <vector>
-#include <string>
-#include <iomanip>
-
 using namespace std;
 
-// ==========================================
-// 1. CLASS KENDARAAN 
-// ==========================================
-class Kendaraan {
-public:
-    string plat;
-    string jenis;
+
+// KONSTANTA & STRUCT GLOBAL
+
+const int MAX_LANTAI = 3;
+const int MAX_SLOT   = 4;
+
+struct Kendaraan {
+    char plat[20];
+    char jenis[10];
     bool terisi;
-
-    // Constructor Default
-    Kendaraan() : plat("-"), jenis("-"), terisi(false) {}
 };
 
-// ==========================================
-// 2. CLASS GEDUNG PARKIR
-// ==========================================
-class GedungParkir {
-private:
-    // ARRAY MULTI-DIMENSI: 3 Lantai, 4 Slot per lantai
-    Kendaraan slotParkir[3][4];
-    const int MAX_LANTAI = 3;
-    const int MAX_SLOT = 4;
+Kendaraan slotParkir[MAX_LANTAI][MAX_SLOT];
 
-public:
-    // RECURSIVE: Mencari slot kosong pertama secara otomatis
-    bool cariSlotOtomatis(int lantai, int slot, int &lFound, int &sFound) {
-        // Case 1: Kalo sudah melewati lantai terakhir
-        if (lantai >= MAX_LANTAI) return false;
 
-        // Base Case 2: Kalo ditemukan slot kosong
-        if (!slotParkir[lantai][slot].terisi) {
-            lFound = lantai;
-            sFound = slot;
-            return true;
+// INISIALISASI SLOT
+
+void inisialisasi() {
+    for (int i = 0; i < MAX_LANTAI; i++) {
+        for (int j = 0; j < MAX_SLOT; j++) {
+            slotParkir[i][j].plat[0]  = '-';
+            slotParkir[i][j].plat[1]  = '\0';
+            slotParkir[i][j].jenis[0] = '-';
+            slotParkir[i][j].jenis[1] = '\0';
+            slotParkir[i][j].terisi   = false;
         }
+    }
+}
 
-        // Rekursi: Pindah ke slot berikutnya atau lantai berikutnya
-        if (slot < MAX_SLOT - 1) 
-            return cariSlotOtomatis(lantai, slot + 1, lFound, sFound);
-        else 
-            return cariSlotOtomatis(lantai + 1, 0, lFound, sFound);
+
+// RECURSIVE: Cari slot kosong pertama
+
+bool cariSlotOtomatis(int lantai, int slot, int &lFound, int &sFound) {
+    if (lantai >= MAX_LANTAI) return false;
+
+    if (!slotParkir[lantai][slot].terisi) {
+        lFound = lantai;
+        sFound = slot;
+        return true;
     }
 
-    // SEARCHING: Linear Search untuk mencari koordinat kendaraan
-    void cariLokasiKendaraan() {
-        string target;
-        cout << "Masukkan Plat Nomor yang dicari: "; cin >> target;
-        bool ditemukan = false;
+    if (slot < MAX_SLOT - 1)
+        return cariSlotOtomatis(lantai, slot + 1, lFound, sFound);
+    else
+        return cariSlotOtomatis(lantai + 1, 0, lFound, sFound);
+}
 
-        for (int i = 0; i < MAX_LANTAI; i++) {
-            for (int j = 0; j < MAX_SLOT; j++) {
-                if (slotParkir[i][j].terisi && slotParkir[i][j].plat == target) {
-                    cout << ">> Ditemukan! Lantai: " << i << ", Slot: " << j << endl;
-                    ditemukan = true;
-                }
+
+// INPUT: Parkir masuk (pakai rekursi)
+
+void parkirMasuk() {
+    int l, s;
+    if (cariSlotOtomatis(0, 0, l, s)) {
+        cout << "Slot Kosong Ditemukan di [Lantai " << l << "][Slot " << s << "]\n";
+        cout << "Input Plat Nomor : "; cin >> slotParkir[l][s].plat;
+        cout << "Input Jenis (Mobil/Motor): "; cin >> slotParkir[l][s].jenis;
+        slotParkir[l][s].terisi = true;
+        cout << "Berhasil diparkir!\n";
+    } else {
+        cout << "Maaf, Gedung Parkir Penuh!\n";
+    }
+}
+
+
+// SEARCHING: Linear Search cari kendaraan
+
+void cariLokasiKendaraan() {
+    char target[20];
+    cout << "Masukkan Plat Nomor yang dicari: "; cin >> target;
+    bool ditemukan = false;
+
+    for (int i = 0; i < MAX_LANTAI; i++) {
+        for (int j = 0; j < MAX_SLOT; j++) {
+            // Bandingkan char array manual
+            bool sama = true;
+            for (int k = 0; target[k] != '\0' || slotParkir[i][j].plat[k] != '\0'; k++) {
+                if (target[k] != slotParkir[i][j].plat[k]) { sama = false; break; }
+            }
+            if (slotParkir[i][j].terisi && sama) {
+                cout << ">> Ditemukan! Lantai: " << i << ", Slot: " << j << "\n";
+                ditemukan = true;
             }
         }
-        if (!ditemukan) cout << ">> Kendaraan tidak ada di gedung ini.\n";
     }
+    if (!ditemukan) cout << ">> Kendaraan tidak ada di gedung ini.\n";
+}
 
-    // INPUT: Menambahkan kendaraan ke slot hasil rekursi
-    void parkirMasuk() {
-        int l, s;
-        if (cariSlotOtomatis(0, 0, l, s)) {
-            cout << "Slot Kosong Ditemukan di [Lantai " << l << "][Slot " << s << "]\n";
-            cout << "Input Plat Nomor: "; cin >> slotParkir[l][s].plat;
-            cout << "Input Jenis (Mobil/Motor): "; cin >> slotParkir[l][s].jenis;
-            slotParkir[l][s].terisi = true;
-            cout << "Berhasil diparkir!\n";
-        } else {
-            cout << "Maaf, Gedung Parkir Penuh!\n";
-        }
-    }
 
-    // SORTING: Bubble Sort untuk menampilkan laporan plat terurut
-    void tampilkanLaporanTerurut() {
-        vector<string> listPlat;
-        for (int i = 0; i < MAX_LANTAI; i++) {
-            for (int j = 0; j < MAX_SLOT; j++) {
-                if (slotParkir[i][j].terisi) listPlat.push_back(slotParkir[i][j].plat);
+// SORTING: Bubble Sort plat nomor (A-Z)
+
+void tampilkanLaporanTerurut() {
+    // Kumpulkan plat yang terisi ke array sementara
+    char listPlat[MAX_LANTAI * MAX_SLOT][20];
+    int total = 0;
+
+    for (int i = 0; i < MAX_LANTAI; i++)
+        for (int j = 0; j < MAX_SLOT; j++)
+            if (slotParkir[i][j].terisi) {
+                // Salin manual
+                int k = 0;
+                while ((listPlat[total][k] = slotParkir[i][j].plat[k]) != '\0') k++;
+                total++;
+            }
+
+    if (total == 0) { cout << "Belum ada kendaraan parkir.\n"; return; }
+
+    // Bubble Sort (bandingkan char per char)
+    for (int i = 0; i < total - 1; i++) {
+        for (int j = 0; j < total - i - 1; j++) {
+            // Cek apakah listPlat[j] > listPlat[j+1]
+            bool lebihBesar = false;
+            for (int k = 0; ; k++) {
+                if (listPlat[j][k] == '\0' && listPlat[j+1][k] == '\0') break;
+                if (listPlat[j][k] > listPlat[j+1][k]) { lebihBesar = true;  break; }
+                if (listPlat[j][k] < listPlat[j+1][k]) { lebihBesar = false; break; }
+            }
+            if (lebihBesar) {
+                char tmp[20];
+                int k = 0;
+                while ((tmp[k] = listPlat[j][k]) != '\0') k++;
+                tmp[k] = '\0';
+                k = 0;
+                while ((listPlat[j][k] = listPlat[j+1][k]) != '\0') k++;
+                listPlat[j][k] = '\0';
+                k = 0;
+                while ((listPlat[j+1][k] = tmp[k]) != '\0') k++;
+                listPlat[j+1][k] = '\0';
             }
         }
-
-        if (listPlat.empty()) {
-            cout << "Belum ada kendaraan parkir.\n";
-            return;
-        }
-
-        // Algoritmanya
-        for (int i = 0; i < (int)listPlat.size() - 1; i++) {
-            for (int j = 0; j < (int)listPlat.size() - i - 1; j++) {
-                if (listPlat[j] > listPlat[j+1]) swap(listPlat[j], listPlat[j+1]);
-            }
-        }
-
-        cout << "\n--- LAPORAN KENDARAAN (A-Z) ---\n";
-        for (const string& p : listPlat) cout << "| " << p << " |\n";
     }
 
-    // VISUALISASI GEDUNG (Melihat kondisi Array 2D)
-    void cekGedung() {
-        cout << "\n=== DENAH GEDUNG (X = Terisi, O = Kosong) ===\n";
-        for (int i = 0; i < MAX_LANTAI; i++) {
-            cout << "Lantai " << i << ": ";
-            for (int j = 0; j < MAX_SLOT; j++) {
-                cout << "[" << (slotParkir[i][j].terisi ? "X" : "O") << "] ";
-            }
-            cout << endl;
-        }
-    }
-};
+    cout << "\n--- LAPORAN KENDARAAN (A-Z) ---\n";
+    for (int i = 0; i < total; i++) cout << "| " << listPlat[i] << " |\n";
+}
 
-// ==========================================
-// 3. MAIN FUNCTION
-// ==========================================
+
+// VISUALISASI: Denah gedung array 2D
+
+void cekGedung() {
+    cout << "\n=== DENAH GEDUNG (X = Terisi, O = Kosong) ===\n";
+    for (int i = 0; i < MAX_LANTAI; i++) {
+        cout << "Lantai " << i << ": ";
+        for (int j = 0; j < MAX_SLOT; j++)
+            cout << "[" << (slotParkir[i][j].terisi ? "X" : "O") << "] ";
+        cout << "\n";
+    }
+}
+
+
+// MAIN
+
 int main() {
-    GedungParkir mall;
+    inisialisasi();
     int menu;
 
     do {
@@ -134,10 +166,10 @@ int main() {
         cout << "Pilihan: "; cin >> menu;
 
         switch (menu) {
-            case 1: mall.parkirMasuk(); break;
-            case 2: mall.cariLokasiKendaraan(); break;
-            case 3: mall.tampilkanLaporanTerurut(); break;
-            case 4: mall.cekGedung(); break;
+            case 1: parkirMasuk();             break;
+            case 2: cariLokasiKendaraan();     break;
+            case 3: tampilkanLaporanTerurut(); break;
+            case 4: cekGedung();               break;
             case 0: cout << "Sistem Shutdown.\n"; break;
             default: cout << "Menu salah!\n";
         }
