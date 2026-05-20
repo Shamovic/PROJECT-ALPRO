@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 
@@ -59,6 +60,12 @@ void parkirMasuk() {
         cout << "Input Plat Nomor : "; cin >> slotParkir[l][s].plat;
         cout << "Input Jenis (Mobil/Motor): "; cin >> slotParkir[l][s].jenis;
         slotParkir[l][s].terisi = true;
+        ofstream file("riwayat_parkir.csv", ios::app);
+        file << slotParkir[l][s].jenis << ","
+             << slotParkir[l][s].plat << ","
+             << l << ","
+             << s << "\n";
+        file.close();
         cout << "Berhasil diparkir!\n";
     } else {
         cout << "Maaf, Gedung Parkir Penuh!\n";
@@ -175,6 +182,39 @@ void cekGedung() {
     }
 }
 
+// Riwayat
+void riwayat() {
+    system("cls");
+    ifstream file("riwayat_parkir.csv");
+
+     file.seekg(0, ios::end);
+    if (file.tellg() == 0) {
+      cout << "Belum ada riwayat parkir.\n";
+      system("pause");
+      file.close();
+    return;
+    }
+
+file.seekg(0, ios::beg);
+
+    string jenis, plat, lantai, slot;
+
+    cout << "\n=== RIWAYAT PARKIR ===\n\n";
+
+    while (getline(file, jenis, ',') &&
+           getline(file, plat, ',') &&
+           getline(file, lantai, ',') &&
+           getline(file, slot)) {
+
+        cout << "Jenis  : " << jenis   << endl;
+        cout << "Plat   : " << plat    << endl;
+        cout << "Lantai : " << lantai  << endl;
+        cout << "Slot   : " << slot    << endl;
+        cout << "----------------------\n";
+    }
+    system("pause");
+    system("cls");
+}
 
 // MAIN
 
@@ -189,6 +229,7 @@ int main() {
         cout << "3. Cari Lokasi Kendaraan\n";
         cout << "4. Laporan Plat Terurut (Sorting)\n";
         cout << "5. Lihat Denah Gedung\n";
+        cout << "6. Riwayat Parkir\n";
         cout << "0. Keluar\n";
         cout << "Pilihan: "; cin >> menu;
 
@@ -198,6 +239,7 @@ int main() {
             case 3: cariLokasiKendaraan();     break;
             case 4: tampilkanLaporanTerurut(); break;
             case 5: cekGedung();               break;
+            case 6: riwayat();                 break;
             case 0: cout << "Sistem Shutdown.\n"; break;
             default: cout << 
             "Menu salah!\n";
