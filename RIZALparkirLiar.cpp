@@ -21,6 +21,7 @@ Kendaraan slotParkir[MAX_LANTAI][MAX_SLOT];
 // INISIALISASI SLOT
 
 void inisialisasi() {
+    //initdata ke ram
     for (int i = 0; i < MAX_LANTAI; i++) {
         for (int j = 0; j < MAX_SLOT; j++) {
             slotParkir[i][j].plat[0]  = '-';
@@ -60,6 +61,8 @@ void parkirMasuk() {
         cout << "Input Plat Nomor : "; cin >> slotParkir[l][s].plat;
         cout << "Input Jenis (Mobil/Motor): "; cin >> slotParkir[l][s].jenis;
         slotParkir[l][s].terisi = true;
+
+        //input data ke csv
         ofstream file("riwayat_parkir.csv", ios::app);
         file << slotParkir[l][s].jenis << ","
              << slotParkir[l][s].plat << ","
@@ -197,6 +200,7 @@ void riwayat() {
 
 file.seekg(0, ios::beg);
 
+    //Lihat riwayat yang ada di dalam file .csv secara langsung dengan temp variable
     string jenis, plat, lantai, slot;
 
     cout << "\n=== RIWAYAT PARKIR ===\n\n";
