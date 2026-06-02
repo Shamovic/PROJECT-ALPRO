@@ -21,7 +21,6 @@ Kendaraan slotParkir[MAX_LANTAI][MAX_SLOT];
 // INISIALISASI SLOT
 
 void inisialisasi() {
-    //initdata ke ram
     for (int i = 0; i < MAX_LANTAI; i++) {
         for (int j = 0; j < MAX_SLOT; j++) {
             slotParkir[i][j].plat[0]  = '-';
@@ -146,25 +145,13 @@ void tampilkanLaporanTerurut() {
     // Bubble Sort (bandingkan char per char)
     for (int i = 0; i < total - 1; i++) {
         for (int j = 0; j < total - i - 1; j++) {
-            // Cek apakah listPlat[j] > listPlat[j+1]
-            bool lebihBesar = false;
-            for (int k = 0; ; k++) {
-                if (listPlat[j][k] == '\0' && listPlat[j+1][k] == '\0') break;
-                if (listPlat[j][k] > listPlat[j+1][k]) { lebihBesar = true;  break; }
-                if (listPlat[j][k] < listPlat[j+1][k]) { lebihBesar = false; break; }
-            }
-            if (lebihBesar) {
-                char tmp[20];
-                int k = 0;
-                while ((tmp[k] = listPlat[j][k]) != '\0') k++;
-                tmp[k] = '\0';
-                k = 0;
-                while ((listPlat[j][k] = listPlat[j+1][k]) != '\0') k++;
-                listPlat[j][k] = '\0';
-                k = 0;
-                while ((listPlat[j+1][k] = tmp[k]) != '\0') k++;
-                listPlat[j+1][k] = '\0';
-            }
+
+           if (strcmp(listPlat[j], listPlat[j+1]) > 0) {
+            char tmp[20];
+            strcpy(tmp, listPlat[j]);          
+            strcpy(listPlat[j], listPlat[j+1]);
+            strcpy(listPlat[j+1], tmp);        
+        }
         }
     }
 
