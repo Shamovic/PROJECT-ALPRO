@@ -7,7 +7,7 @@ using namespace std;
 // KONSTANTA & STRUCT GLOBAL
 
 const int MAX_LANTAI = 3;
-const int MAX_SLOT   = 4;
+const int MAX_SLOT   = 8;
 
 struct Kendaraan {
     char plat[20];
@@ -38,7 +38,7 @@ void inisialisasi() {
 bool cariSlotOtomatis(int lantai, int slot, int &lFound, int &sFound) {
     if (lantai >= MAX_LANTAI) return false;
 
-    if (!slotParkir[lantai][slot].terisi) {
+    if (!slotParkir[lantai][slot].terisi) { //tambahkan slot tidak harus rekursif
         lFound = lantai;
         sFound = slot;
         return true;
@@ -57,8 +57,13 @@ void parkirMasuk() {
     int l, s;
     if (cariSlotOtomatis(0, 0, l, s)) {
         cout << "Slot Kosong Ditemukan di [Lantai " << l << "][Slot " << s << "]\n";
-        cout << "Input Plat Nomor : "; cin >> slotParkir[l][s].plat;
+        cout << "Input Plat Nomor (AA 123 AB): "; cin >> slotParkir[l][s].plat;
+        // standarisai plat nomor
+
         cout << "Input Jenis (Mobil/Motor): "; cin >> slotParkir[l][s].jenis;
+        // error handling kendaraan
+
+
         slotParkir[l][s].terisi = true;
 
         //input data ke csv
@@ -124,8 +129,6 @@ void cariLokasiKendaraan() {
 }
 
 
-// SORTING: Bubble Sort plat nomor (A-Z)
-
 void tampilkanLaporanTerurut() {
     // Kumpulkan plat yang terisi ke array sementara
     char listPlat[MAX_LANTAI * MAX_SLOT][20];
@@ -143,7 +146,7 @@ void tampilkanLaporanTerurut() {
     if (total == 0) { cout << "Belum ada kendaraan parkir.\n"; return; }
 
     // Bubble Sort (bandingkan char per char)
-    for (int i = 0; i < total - 1; i++) {
+    for (int i = 0; i < total - 1; i++) { 
         for (int j = 0; j < total - i - 1; j++) {
 
            if (strcmp(listPlat[j], listPlat[j+1]) > 0) {
@@ -154,6 +157,12 @@ void tampilkanLaporanTerurut() {
         }
         }
     }
+
+    //sorting berdasarkan lantai terendah
+    //
+    //
+    //
+    //
 
     cout << "\n--- LAPORAN KENDARAAN (A-Z) ---\n";
     for (int i = 0; i < total; i++) cout << "| " << listPlat[i] << " |\n";
